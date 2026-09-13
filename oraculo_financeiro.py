@@ -270,7 +270,9 @@ if not st.session_state.autenticado:
     col = st.container()
     with col:
         st.markdown("""
-        <div class="card" style="text-align:center; padding:40px; max-width:500px; margin:0 auto;">
+        <div style="text-align:center; padding:40px; max-width:500px; margin:0 auto;
+             background:#FFFFFF; border-radius:16px; border:1px solid #E5E7EB;
+             box-shadow:0 2px 12px rgba(0,0,0,0.06);">
           <div style="font-size:56px; margin-bottom:12px;">💰</div>
           <h1 style="font-size:28px; margin:0; color:#1A1A2E;">Oráculo Financeiro</h1>
           <p style="font-size:13px; color:#4B5563; letter-spacing:2px; margin-top:6px;">ECONOMIZE • GERENCIE • INVISTA • CRESÇA</p>
@@ -284,32 +286,6 @@ if not st.session_state.autenticado:
         🔗 <a href="https://quizcompremios.com.br" target="_blank"
         style="color:#5B50E8;font-weight:600;text-decoration:none;">quizcompremios.com.br</a>
         </div>""", unsafe_allow_html=True)
-
-        # ── PERFIS SALVOS NO SERVIDOR ─────────────────────────
-        perfis = perfis_salvos()
-        if perfis:
-            st.markdown("#### 💰 Seus Oráculos salvos")
-            st.caption("Clique para acessar seus dados direto — sem precisar fazer upload.")
-            for nome_p in perfis:
-                dados_p = carregar_perfil_cache(nome_p)
-                renda_p = dados_p.get("renda_total", 0) if dados_p else 0
-                gastos_p = len(dados_p.get("gastos", [])) if dados_p else 0
-                col_pf2, col_del2 = st.columns([5,1])
-                with col_pf2:
-                    if st.button(f"💰 {nome_p}  —  Renda {fmt(renda_p)} · {gastos_p} gastos registrados", key=f"perfil_{nome_p}", use_container_width=True):
-                        chave_rapida = st.session_state.get("api_key", "")
-                        if not chave_rapida:
-                            st.warning("Cole sua chave API abaixo antes de entrar.")
-                        else:
-                            st.session_state.nome_user   = nome_p
-                            st.session_state.autenticado = True
-                            carregar_json_sessao(dados_p)
-                            st.rerun()
-                with col_del2:
-                    if st.button("🗑️", key=f"del_{nome_p}", help=f"Remover {nome_p}"):
-                        _cache["perfis"].pop(nome_p, None)
-                        st.rerun()
-            st.markdown("<hr>", unsafe_allow_html=True)
 
         with st.form("login"):
             nome  = st.text_input("👤 Seu nome", key="input_nome_login")
@@ -408,6 +384,24 @@ tabs = st.tabs([
     "💳 Dívidas", "🏦 Reserva", "📈 Investimentos",
     "⚖️ Patrimônio", "📊 Relatório", "⚙️ Config"
 ])
+
+# ── BARRA SALVAR — visível em todas as abas ──
+with st.expander("💾 Salvar / Carregar meus dados", expanded=False):
+    _bsc1, _bsc2 = st.columns(2)
+    with _bsc1:
+        _dsv_or = {k: st.session_state.get(k) for k in list(st.session_state.keys()) if not k.startswith('_') and k not in ('api_key','input_nome_login','input_chave_login','upload_login')}
+        st.download_button("💾 Baixar meus dados (.json)",
+            data=json.dumps(_dsv_or, ensure_ascii=False, indent=2, default=str),
+            file_name=f"oraculo_{st.session_state.get('nome_user','user')}.json",
+            mime="application/json", key="dl_barra_sv_oraf")
+    with _bsc2:
+        _fupsv_or = st.file_uploader("📂 Carregar dados salvos:", type=["json"], key="ul_barra_sv_oraf", label_visibility="collapsed")
+        if _fupsv_or:
+            try:
+                carregar_json_sessao(json.loads(_fupsv_or.read().decode()))
+                st.success("✅ Dados restaurados!"); st.rerun()
+            except: st.error("Arquivo inválido.")
+
 (tab_dash, tab_ia, tab_renda, tab_gastos, tab_metas,
  tab_fixas, tab_div, tab_res, tab_inv,
  tab_pat, tab_rel, tab_cfg) = tabs
