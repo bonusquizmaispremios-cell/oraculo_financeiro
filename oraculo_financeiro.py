@@ -267,64 +267,52 @@ if 'reserva_emergencia' not in st.session_state: st.session_state['reserva_emerg
 if 'taxa_invest_anual' not in st.session_state: st.session_state['taxa_invest_anual'] = None
 
 if not st.session_state.autenticado:
-    col = st.container()
-    with col:
-        st.markdown("""
-        <div style="text-align:center; padding:40px; max-width:500px; margin:0 auto;
-             background:#FFFFFF; border-radius:16px; border:1px solid #E5E7EB;
-             box-shadow:0 2px 12px rgba(0,0,0,0.06);">
-          <div style="font-size:56px; margin-bottom:12px;">💰</div>
-          <h1 style="font-size:28px; margin:0; color:#1A1A2E;">Oráculo Financeiro</h1>
-          <p style="font-size:13px; color:#4B5563; letter-spacing:2px; margin-top:6px;">ECONOMIZE • GERENCIE • INVISTA • CRESÇA</p>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown("""
+    <div style="text-align:center; padding:30px 20px 20px 20px;">
+      <div style="font-size:56px; margin-bottom:8px;">💰</div>
+      <h1 style="font-size:28px; margin:0; color:#1A1A2E;">Oráculo Financeiro</h1>
+      <p style="font-size:13px; color:#4B5563; letter-spacing:2px; margin-top:6px;">ECONOMIZE • GERENCIE • INVISTA • CRESÇA</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-        # ── ACESSO RESTRITO ───────────────────────────────────
-        st.markdown("""<div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;
-        padding:10px 16px;margin-bottom:14px;font-size:0.88em;color:#1E40AF;line-height:1.6;">
-        🔒 <strong>ACESSO RESTRITO A ASSOCIADOS DO QUIZ COM PRÊMIOS</strong><br>
-        🔗 <a href="https://quizcompremios.com.br" target="_blank"
-        style="color:#5B50E8;font-weight:600;text-decoration:none;">quizcompremios.com.br</a>
+    st.markdown("<div class='card'><b>🔒 ACESSO RESTRITO A ASSOCIADOS DO QUIZ COM PRÊMIOS</b><br>🔗 <a href='https://quizcompremios.com.br' target='_blank' style='color:#4F46E5;font-weight:700;text-decoration:underline;'>quizcompremios.com.br</a></div>", unsafe_allow_html=True)
+    st.info("💻 **Dica:** Pela complexidade dos agentes, no computador a experiência é mais agradável.")
+
+    with st.form("login"):
+        nome  = st.text_input("👤 Seu nome", key="input_nome_login")
+        chave = st.text_input("🔑 Chave Groq API", type="password", key="input_chave_login")
+
+        # ── UPLOADER ─────────────────────
+        st.markdown("""<div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;
+        padding:10px 14px;font-size:0.85em;color:#92400E;line-height:1.6;margin-top:8px;">
+        📥 <strong>Seus dados sumiram?</strong> Isso acontece quando o servidor reinicia.<br>
+        Selecione abaixo o arquivo <strong>.json</strong> que você salvou antes — tudo volta como era.
         </div>""", unsafe_allow_html=True)
+        arq_login = st.file_uploader("Carregar meus dados salvos (.json):", type=["json"], key="upload_login")
 
-        with st.form("login"):
-            nome  = st.text_input("👤 Seu nome", key="input_nome_login")
-            chave = st.text_input("🔑 Chave Groq API", type="password", key="input_chave_login")
+        dados_login = None
+        if arq_login is not None:
+            try:
+                dados_login = json.load(arq_login)
+                nome_imp = dados_login.get("nome_user", "")
+                st.success(f"✅ Dados de **{nome_imp}** reconhecidos! Clique em Entrar.")
+            except Exception:
+                st.error("Arquivo inválido.")
+                dados_login = None
 
-            # ── UPLOADER SE DADOS SUMIRAM ─────────────────────
-            if not perfis:
-                st.markdown("""<div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;
-                padding:10px 14px;font-size:0.85em;color:#92400E;line-height:1.6;margin-top:8px;">
-                📥 <strong>Seus dados sumiram?</strong> Isso acontece quando o servidor reinicia.<br>
-                Selecione abaixo o arquivo <strong>.json</strong> que você salvou antes — tudo volta como era.
-                </div>""", unsafe_allow_html=True)
-                arq_login = st.file_uploader("Carregar meus dados salvos (.json):", type=["json"], key="upload_login")
+        if st.form_submit_button("🚀 ENTRAR NO SISTEMA", key="oraculoffsb501"):
+            if nome and chave:
+                st.session_state.nome_user   = nome
+                st.session_state.api_key     = chave
+                st.session_state.autenticado = True
+                if dados_login:
+                    carregar_json_sessao(dados_login)
+                st.rerun()
             else:
-                arq_login = None
+                st.error("Preencha nome e chave API.")
 
-            dados_login = None
-            if arq_login is not None:
-                try:
-                    dados_login = json.load(arq_login)
-                    nome_imp = dados_login.get("nome_user", "")
-                    st.success(f"✅ Dados de **{nome_imp}** reconhecidos! Clique em Entrar.")
-                except Exception:
-                    st.error("Arquivo inválido.")
-                    dados_login = None
-
-            if st.form_submit_button("🚀 ENTRAR NO SISTEMA", key="oraculoffsb501"):
-                if nome and chave:
-                    st.session_state.nome_user   = nome
-                    st.session_state.api_key     = chave
-                    st.session_state.autenticado = True
-                    if dados_login:
-                        carregar_json_sessao(dados_login)
-                    st.rerun()
-                else:
-                    st.error("Preencha nome e chave API.")
-
-        st.info("💻 **Dica:** Pela complexidade dos agentes, no computador a experiência é mais agradável.")
-        st.markdown("🔑 Não tem chave Groq? Crie grátis em <a href='https://console.groq.com/keys' target='_blank' style='color:#5B50E8;font-weight:600;'>console.groq.com/keys</a>", unsafe_allow_html=True)
+    st.info("💻 **Dica:** Pela complexidade dos agentes, no computador a experiência é mais agradável.")
+    st.markdown("🔑 Não tem chave Groq? Crie grátis em <a href='https://console.groq.com/keys' target='_blank' style='color:#5B50E8;font-weight:600;'>console.groq.com/keys</a>", unsafe_allow_html=True)
     st.stop()
 
 # ─────────────────────────────────────────────
@@ -636,6 +624,7 @@ with tab_ia:
             if st.button(f"→ {q}", key=f"qr_{q[:18]}"):
                 with st.spinner("Consultando o Oráculo..."):
                     resp = consultor(q, st.session_state.historico_chat)
+                    if resp: st.session_state['res_bsc2_oraf1'] = str(resp)
                 st.session_state.historico_chat.append({"role":"user","content":q})
                 st.session_state.historico_chat.append({"role":"assistant","content":resp})
                 st.rerun()
@@ -653,6 +642,7 @@ with tab_ia:
         if p := st.chat_input("Qual é sua dúvida ou decisão financeira?", key="oraf1003"):
             with st.spinner("O Oráculo está analisando..."):
                 resp = consultor(p, st.session_state.historico_chat)
+                if resp: st.session_state['res_bsc2_oraf2'] = str(resp)
             st.session_state.historico_chat.append({"role":"user","content":p})
             st.session_state.historico_chat.append({"role":"assistant","content":resp})
             st.rerun()
