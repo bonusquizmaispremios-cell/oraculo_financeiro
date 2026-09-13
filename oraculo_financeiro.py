@@ -117,7 +117,8 @@ def gerar_json_sessao() -> str:
     return json.dumps(dados, ensure_ascii=False, indent=2, default=str)
 
 def carregar_json_sessao(dados):
-    _bloq = {'api_key','etapa','nome_login','chave_login','upload_login','btn_entrar_login'}
+    _bloq = {'api_key','etapa','nome_login','chave_login','upload_login','btn_entrar_login',
+             'input_nome_login','input_chave_login','autenticado'}
     _pref = (
         'btn_','sel_','ul_','dl_','cad_','_sub','_sm','_tab','_bsc',
         'ativo_','rem_','sel_pet_','ev_','prof_','hig_','prev_',
@@ -125,14 +126,14 @@ def carregar_json_sessao(dados):
         'duvida_','emerg_','peso_','data_','obs_','tipo_','vet_','desc_',
         'local_','prox_','alim','sit_emerg_','tc_','oraf','siau','agmag',
         'lv','mv','pt','pi','sh','wc','rv','rp','rc',
+        'input_','upload_','oraculof',
     )
     import re as _re
     for k, v in dados.items():
         if k in _bloq: continue
         if any(k.startswith(p) for p in _pref): continue
-        if _re.match(r'.+_\d+$', k): continue
+        if _re.match(r'.+_?\d+$', k): continue
         st.session_state[k] = v
-
 def salvar_perfil_cache(nome: str, dados: dict):
     """Salva no cache enquanto servidor estiver vivo."""
     _cache["perfis"][nome] = dados.copy()
