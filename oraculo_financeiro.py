@@ -160,7 +160,8 @@ def gerar_json_sessao() -> str:
 
 def carregar_json_sessao(dados):
     _bloq = {'api_key','etapa','nome_login','chave_login','upload_login','btn_entrar_login',
-             'input_nome_login','input_chave_login','autenticado'}
+             'input_nome_login','input_chave_login','autenticado',
+             'inv_aporte_mensal','inv_capital_ini'}
     _pref = (
         'btn_','sel_','ul_','dl_','cad_','_sub','_sm','_tab','_bsc',
         'ativo_','rem_','sel_pet_','ev_','prof_','hig_','prev_',
@@ -1057,10 +1058,10 @@ with tab_inv:
         taxa_a_inv = st.number_input("Taxa anual esperada (%)", min_value=1.0, max_value=30.0, value=st.session_state.taxa_invest_anual, step=0.5, key="oraculof37")
         st.session_state.taxa_invest_anual = taxa_a_inv
     with ci2:
-        aporte_inv = st.number_input("Aporte mensal (R$)", min_value=0.0, value=float(st.session_state.get("aporte_inv_salvo", 0.0)), step=50.0, key="oraculof38")
+        aporte_inv = st.number_input("Aporte mensal (R$)", min_value=0.0, value=float(st.session_state.aporte_inv_salvo), step=50.0, key="inv_aporte_mensal")
         st.session_state.aporte_inv_salvo = aporte_inv
     with ci3:
-        cap_ini_inv = st.number_input("Capital inicial (R$)", min_value=0.0, value=float(st.session_state.get("cap_ini_inv_salvo", 0.0)), step=500.0, key="oraculof39")
+        cap_ini_inv = st.number_input("Capital inicial (R$)", min_value=0.0, value=float(st.session_state.cap_ini_inv_salvo), step=500.0, key="inv_capital_ini")
         st.session_state.cap_ini_inv_salvo = cap_ini_inv
     st.markdown("</div>", unsafe_allow_html=True)
 
