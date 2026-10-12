@@ -160,8 +160,7 @@ def gerar_json_sessao() -> str:
 
 def carregar_json_sessao(dados):
     _bloq = {'api_key','etapa','nome_login','chave_login','upload_login','btn_entrar_login',
-             'input_nome_login','input_chave_login','autenticado',
-             'inv_aporte_mensal','inv_capital_ini'}
+             'input_nome_login','input_chave_login','autenticado'}
     _pref = (
         'btn_','sel_','ul_','dl_','cad_','_sub','_sm','_tab','_bsc',
         'ativo_','rem_','sel_pet_','ev_','prof_','hig_','prev_',
@@ -177,6 +176,10 @@ def carregar_json_sessao(dados):
         if any(k.startswith(p) for p in _pref): continue
         if _re.match(r'.+_?\d+$', k): continue
         st.session_state[k] = v
+    # Forçar ressincronização dos widgets de investimento após carregar JSON
+    for _wk in ('inv_aporte_mensal', 'inv_capital_ini'):
+        if _wk in st.session_state:
+            del st.session_state[_wk]
 def salvar_perfil_cache(nome: str, dados: dict):
     """Salva no cache enquanto servidor estiver vivo."""
     _cache["perfis"][nome] = dados.copy()
@@ -298,8 +301,12 @@ Termine sempre com: "⚠️ Análise baseada nos seus dados. Consulte um profiss
 # Garantia extra: init() já rodou acima, mas asseguramos valores padrão corretos
 if 'aporte_inv_salvo' not in st.session_state or st.session_state['aporte_inv_salvo'] is None:
     st.session_state['aporte_inv_salvo'] = 0.0
+else:
+    st.session_state['aporte_inv_salvo'] = float(st.session_state['aporte_inv_salvo'])
 if 'cap_ini_inv_salvo' not in st.session_state or st.session_state['cap_ini_inv_salvo'] is None:
     st.session_state['cap_ini_inv_salvo'] = 0.0
+else:
+    st.session_state['cap_ini_inv_salvo'] = float(st.session_state['cap_ini_inv_salvo'])
 if 'outras_rendas' not in st.session_state or st.session_state['outras_rendas'] is None:
     st.session_state['outras_rendas'] = []
 if 'patrimonio_itens' not in st.session_state or st.session_state['patrimonio_itens'] is None:
@@ -1058,10 +1065,14 @@ with tab_inv:
         taxa_a_inv = st.number_input("Taxa anual esperada (%)", min_value=1.0, max_value=30.0, value=st.session_state.taxa_invest_anual, step=0.5, key="oraculof37")
         st.session_state.taxa_invest_anual = taxa_a_inv
     with ci2:
-        aporte_inv = st.number_input("Aporte mensal (R$)", min_value=0.0, value=float(st.session_state.aporte_inv_salvo), step=50.0, key="inv_aporte_mensal")
+        if "inv_aporte_mensal" not in st.session_state:
+            st.session_state["inv_aporte_mensal"] = float(st.session_state.aporte_inv_salvo)
+        aporte_inv = st.number_input("Aporte mensal (R$)", min_value=0.0, step=50.0, key="inv_aporte_mensal")
         st.session_state.aporte_inv_salvo = aporte_inv
     with ci3:
-        cap_ini_inv = st.number_input("Capital inicial (R$)", min_value=0.0, value=float(st.session_state.cap_ini_inv_salvo), step=500.0, key="inv_capital_ini")
+        if "inv_capital_ini" not in st.session_state:
+            st.session_state["inv_capital_ini"] = float(st.session_state.cap_ini_inv_salvo)
+        cap_ini_inv = st.number_input("Capital inicial (R$)", min_value=0.0, step=500.0, key="inv_capital_ini")
         st.session_state.cap_ini_inv_salvo = cap_ini_inv
     st.markdown("</div>", unsafe_allow_html=True)
 
