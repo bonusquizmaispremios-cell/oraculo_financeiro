@@ -101,7 +101,37 @@ st.markdown("""
 
     .chat-scroll-container { max-height:40vh; overflow-y:auto; display:flex; flex-direction:column; scroll-behavior:smooth; padding-bottom:4px; }
     .chat-scroll-container > * { flex-shrink:0; }
-    
+
+    /* ── CLASSES USADAS NO APP ── */
+    .card-purple { background:linear-gradient(135deg,#F5F3FF,#EDE9FE); padding:20px; border-radius:14px; border:1px solid #C4B5FD; margin-bottom:14px; white-space:normal; word-wrap:break-word; }
+    .stApp .card-purple, .stApp .card-purple p, .stApp .card-purple span, .stApp .card-purple div { color:#3B0764 !important; }
+
+    .card-gold { background:linear-gradient(135deg,#FFFBEB,#FEF3C7); padding:20px; border-radius:14px; border:1px solid #FCD34D; margin-bottom:14px; white-space:normal; word-wrap:break-word; }
+    .stApp .card-gold, .stApp .card-gold p, .stApp .card-gold span, .stApp .card-gold div { color:#78350F !important; }
+
+    .alert-info { background:#EFF6FF; border:1px solid #93C5FD; border-radius:8px; padding:10px 14px; font-size:13px; color:#1E40AF !important; margin-bottom:8px; }
+    .alert-warn { background:#FFFBEB; border:1px solid #FCD34D; border-radius:8px; padding:10px 14px; font-size:13px; color:#92400E !important; margin-bottom:8px; }
+    .alert-danger { background:#FFF5F5; border:1px solid #FECACA; border-radius:8px; padding:10px 14px; font-size:13px; color:#991B1B !important; margin-bottom:8px; }
+    .alert-success { background:#F0FDF4; border:1px solid #86EFAC; border-radius:8px; padding:10px 14px; font-size:13px; color:#166534 !important; margin-bottom:8px; }
+
+    .metric-box { background:#FFFFFF; border-radius:12px; padding:14px 10px; text-align:center; border:1px solid #E5E7EB; }
+    .metric-label { font-size:11px; color:#6B7280; margin-bottom:4px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+    .metric-value { font-size:20px; font-weight:700; color:#1A1A2E; }
+    .metric-sub { font-size:11px; color:#9CA3AF; margin-top:2px; }
+
+    .prog-wrap { background:#E5E7EB; border-radius:999px; height:7px; overflow:hidden; margin:5px 0; }
+    .prog-fill { height:100%; border-radius:999px; transition:width 0.4s ease; }
+
+    .badge-green  { background:#059669; color:white !important; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; display:inline-block; }
+    .badge-gold   { background:#B45309; color:white !important; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; display:inline-block; }
+    .badge-red    { background:#DC2626; color:white !important; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; display:inline-block; }
+    .badge-purple { background:#7C3AED; color:white !important; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; display:inline-block; }
+
+    .list-item { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #F3F4F6; font-size:13px; }
+    .list-item:last-child { border-bottom:none; }
+
+    .chat-ai { background:#F6FBF4; border:1px solid #86EFAC; border-radius:4px 12px 12px 12px; padding:12px 16px; margin:8px 0; }
+    .stApp .chat-ai, .stApp .chat-ai p, .stApp .chat-ai span, .stApp .chat-ai div { color:#14532D !important; }
 
     </style>
 """, unsafe_allow_html=True)
@@ -113,7 +143,7 @@ CHAVES_SALVAR = [
     "nome_user", "renda_total", "outras_rendas", "gastos", "metas",
     "contas_fixas", "dividas", "historico_chat", "categorias_gastos",
     "reserva_emergencia", "patrimonio_itens", "config_meta_reserva",
-    "taxa_invest_anual",
+    "taxa_invest_anual", "aporte_inv_salvo", "cap_ini_inv_salvo",
 ]
 
 # ── CACHE — persiste enquanto servidor não reiniciar ──────────
@@ -264,20 +294,21 @@ Termine sempre com: "⚠️ Análise baseada nos seus dados. Consulte um profiss
 # ─────────────────────────────────────────────
 # TELA DE LOGIN
 # ─────────────────────────────────────────────
-if 'categorias_gastos' not in st.session_state: st.session_state['categorias_gastos'] = []
-if 'config_meta_reserva' not in st.session_state: st.session_state['config_meta_reserva'] = None
-if 'contas_fixas' not in st.session_state: st.session_state['contas_fixas'] = []
-if 'dividas' not in st.session_state: st.session_state['dividas'] = []
-if 'gastos' not in st.session_state: st.session_state['gastos'] = []
-if 'historico_chat' not in st.session_state: st.session_state['historico_chat'] = []
-if 'metas' not in st.session_state: st.session_state['metas'] = []
-if 'nivel_evolucao' not in st.session_state: st.session_state['nivel_evolucao'] = None
-if 'outras_rendas' not in st.session_state: st.session_state['outras_rendas'] = None
-if 'patrimonio_itens' not in st.session_state: st.session_state['patrimonio_itens'] = None
-if 'perfil_decisao' not in st.session_state: st.session_state['perfil_decisao'] = None
-if 'renda_total' not in st.session_state: st.session_state['renda_total'] = 0
-if 'reserva_emergencia' not in st.session_state: st.session_state['reserva_emergencia'] = None
-if 'taxa_invest_anual' not in st.session_state: st.session_state['taxa_invest_anual'] = None
+# Garantia extra: init() já rodou acima, mas asseguramos valores padrão corretos
+if 'outras_rendas' not in st.session_state or st.session_state['outras_rendas'] is None:
+    st.session_state['outras_rendas'] = []
+if 'patrimonio_itens' not in st.session_state or st.session_state['patrimonio_itens'] is None:
+    st.session_state['patrimonio_itens'] = []
+if 'reserva_emergencia' not in st.session_state or st.session_state['reserva_emergencia'] is None:
+    st.session_state['reserva_emergencia'] = 0.0
+if 'config_meta_reserva' not in st.session_state or st.session_state['config_meta_reserva'] is None:
+    st.session_state['config_meta_reserva'] = 6
+if 'taxa_invest_anual' not in st.session_state or st.session_state['taxa_invest_anual'] is None:
+    st.session_state['taxa_invest_anual'] = 10.0
+if 'nivel_evolucao' not in st.session_state or st.session_state['nivel_evolucao'] is None:
+    st.session_state['nivel_evolucao'] = "Nível 1: Iniciante"
+if 'perfil_decisao' not in st.session_state or st.session_state['perfil_decisao'] is None:
+    st.session_state['perfil_decisao'] = "Não Identificado"
 
 if not st.session_state.autenticado:
     st.markdown("""
@@ -324,7 +355,6 @@ if not st.session_state.autenticado:
             else:
                 st.error("Preencha nome e chave API.")
 
-    st.info("💻 **Dica:** Pela complexidade dos agentes, no computador a experiência é mais agradável.")
     st.markdown("🔑 Não tem chave Groq? Crie grátis em <a href='https://console.groq.com/keys' target='_blank' style='color:#5B50E8;font-weight:600;'>console.groq.com/keys</a>", unsafe_allow_html=True)
     st.stop()
 
@@ -1023,9 +1053,11 @@ with tab_inv:
         taxa_a_inv = st.number_input("Taxa anual esperada (%)", min_value=1.0, max_value=30.0, value=st.session_state.taxa_invest_anual, step=0.5, key="oraculof37")
         st.session_state.taxa_invest_anual = taxa_a_inv
     with ci2:
-        aporte_inv = st.number_input("Aporte mensal (R$)", min_value=0.0, value=max(0.0, saldo*0.5), step=50.0, key="oraculof38")
+        aporte_inv = st.number_input("Aporte mensal (R$)", min_value=0.0, value=float(st.session_state.get("aporte_inv_salvo", 0.0)), step=50.0, key="oraculof38")
+        st.session_state.aporte_inv_salvo = aporte_inv
     with ci3:
-        cap_ini_inv = st.number_input("Capital inicial (R$)", min_value=0.0, value=0.0, step=500.0, key="oraculof39")
+        cap_ini_inv = st.number_input("Capital inicial (R$)", min_value=0.0, value=float(st.session_state.get("cap_ini_inv_salvo", 0.0)), step=500.0, key="oraculof39")
+        st.session_state.cap_ini_inv_salvo = cap_ini_inv
     st.markdown("</div>", unsafe_allow_html=True)
 
     taxa_m_inv = (1 + taxa_a_inv/100)**(1/12) - 1
