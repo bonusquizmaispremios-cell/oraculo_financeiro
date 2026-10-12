@@ -295,6 +295,10 @@ Termine sempre com: "⚠️ Análise baseada nos seus dados. Consulte um profiss
 # TELA DE LOGIN
 # ─────────────────────────────────────────────
 # Garantia extra: init() já rodou acima, mas asseguramos valores padrão corretos
+if 'aporte_inv_salvo' not in st.session_state or st.session_state['aporte_inv_salvo'] is None:
+    st.session_state['aporte_inv_salvo'] = 0.0
+if 'cap_ini_inv_salvo' not in st.session_state or st.session_state['cap_ini_inv_salvo'] is None:
+    st.session_state['cap_ini_inv_salvo'] = 0.0
 if 'outras_rendas' not in st.session_state or st.session_state['outras_rendas'] is None:
     st.session_state['outras_rendas'] = []
 if 'patrimonio_itens' not in st.session_state or st.session_state['patrimonio_itens'] is None:
