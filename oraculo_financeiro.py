@@ -10,6 +10,18 @@ import math
 # ─────────────────────────────────────────────
 st.set_page_config(page_title="Oráculo Financeiro", page_icon="💰", layout="wide")
 
+st.markdown("""
+<style>
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+[data-testid="stToolbar"] {visibility: hidden;}
+[data-testid="stDecoration"] {visibility: hidden;}
+[data-testid="stStatusWidget"] {visibility: hidden;}
+</style>
+""", unsafe_allow_html=True)
+
+
 # ─────────────────────────────────────────────
 # DESIGN
 # ─────────────────────────────────────────────
@@ -276,7 +288,7 @@ if not st.session_state.autenticado:
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<div class='card'><b>🔒 ACESSO RESTRITO A ASSOCIADOS DO QUIZ COM PRÊMIOS</b><br>🔗 <a href='https://quizcompremios.com.br' target='_blank' style='color:#4F46E5;font-weight:700;text-decoration:underline;'>quizcompremios.com.br</a></div>", unsafe_allow_html=True)
+    st.markdown("<div class='card'><b>🔒 ACESSO RESTRITO A ASSOCIADOS DO MEUSAGENTESIA.COM.BR</b><br>🔗 <a href='https://meusagentesia.com.br' target='_blank' style='color:#4F46E5;font-weight:700;text-decoration:underline;'>meusagentesia.com.br</a></div>", unsafe_allow_html=True)
     st.info("💻 **Dica:** Pela complexidade dos agentes, no computador a experiência é mais agradável.")
 
     with st.form("login"):
@@ -1261,3 +1273,10 @@ with tab_cfg:
                 st.success("Dados apagados com sucesso.")
                 st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
+
+# --- RODAPÉ ---
+st.markdown(
+    "<div style='text-align:center;color:#999;font-size:0.8em;margin-top:60px;padding-bottom:20px;'>"
+    "© 2026 Oráculo Financeiro IA — Gestão Financeira Inteligente · MeusAgentesIA.com.br"
+    "</div>", unsafe_allow_html=True
+)
